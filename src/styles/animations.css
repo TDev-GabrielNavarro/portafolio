@@ -1,25 +1,25 @@
 
 @keyframes folderOpeningSequence {
   0% {
-    transform: translateX(0) scale(1);
+    transform: scale(1);
   }
   50% {
-    transform: translateX(0) scale(1.05);
+    transform: scale(1.05);
   }
   100% {
-    transform: translateX(-80px) scale(1);
+    transform: scale(1);
   }
 }
 
 @keyframes folderReturningSequence {
   0% {
-    transform: translateX(-80px) scale(1);
+    transform: scale(1);
   }
   50% {
-    transform: translateX(-40px) scale(1.05);
+    transform: scale(1.05);
   }
   100% {
-    transform: translateX(0) scale(1);
+    transform: scale(1);
   }
 }
 
