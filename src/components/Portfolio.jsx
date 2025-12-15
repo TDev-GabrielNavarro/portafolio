@@ -1,8 +1,36 @@
-import React, { useState } from 'react';
-import { Folder, FolderOpen, FileText, User, Code, Mail, X, Icon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Folder, FolderOpen, FileText, User, Code, Mail, X } from 'lucide-react';
 import "../styles/animations.css";
+import MouseGradient from './MouseGradient';
+import ParallaxContainer from './ParallaxContainer';
+
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 640,
+    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowSize;
+}
 
 export default function Portfolio() {
+    const { width } = useWindowSize();
+    const isMobile = width < 640;
+
     const [isFolderOpen, setIsFolderOpen] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [isOpening, setIsOpening] = useState(false);
@@ -166,152 +194,204 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
-      {!isFolderOpen && !isOpening && !selectedDoc && (
-        <div className="min-h-screen flex items-center justify-center">
-          <button
-            onClick={handleFolderClick}
-            className="group transform transition-all duration-500 hover:scale-110 focus:outline-none"
-          >
-            <div className="relative">
-              <Folder 
-                size={140} 
-                className="text-yellow-500 drop-shadow-lg group-hover:text-yellow-600 transition-colors" 
-                strokeWidth={1.5} 
-              />
-              <div className="absolute inset-0 bg-yellow-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity rounded-full" />
-            </div>
-            <p className="mt-6 text-gray-700 text-center font-semibold text-xl tracking-wide">
-              Mi Portafolio
-            </p>
-            <p className="text-gray-500 text-sm mt-2">Click para abrir</p>
-          </button>
-        </div>
-      )}
+    <>
+      <MouseGradient />
 
-      {isOpening && (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-folderOpeningSequence">
-            <div className="relative">
-              <Folder 
-                size={140} 
-                className="text-yellow-500 drop-shadow-lg absolute top-0 left-0 animate-iconFadeOut" 
-                strokeWidth={1.5} 
-              />
-              <FolderOpen 
-                size={140} 
-                className="text-yellow-500 drop-shadow-lg animate-iconFadeIn" 
-                strokeWidth={1.5} 
-              />
-            </div>
-            <p className="mt-6 text-gray-700 text-center font-semibold text-xl tracking-wide">
-              Mi Portafolio
-            </p>
-            <p className="text-gray-500 text-sm mt-2 animate-pulse">Abriendo...</p>
-          </div>
-        </div>
-      )}
-
-      {isFolderReturning && (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-folderReturningSequence">
-            <div className="relative">
-              <FolderOpen 
-                size={140} 
-                className="text-yellow-500 drop-shadow-lg absolute top-0 left-0 animate-iconFadeOut" 
-                strokeWidth={1.5} 
-              />
-              <Folder 
-                size={140} 
-                className="text-yellow-500 drop-shadow-lg animate-iconFadeIn" 
-                strokeWidth={1.5} 
-              />
-            </div>
-            <p className="mt-6 text-gray-700 text-center font-semibold text-xl tracking-wide opacity-50">
-              Mi Portafolio
-            </p>
-          </div>
-        </div>
-      )}
-
-      {isFolderOpen && !selectedDoc && !isFolderReturning && (
-        <div className="min-h-screen flex items-center justify-center p-8">
-          <div className="flex items-center gap-12 max-w-6xl w-full">
-            <div className="flex-shrink-0">
-              <button
-                onClick={handleCloseFolderView}
-                className="group relative"
-                disabled={isClosing}
-              >
-                <FolderOpen 
-                  size={120} 
-                  className={`drop-shadow-lg transition-all duration-500 ${
-                    isClosing ? 'text-yellow-500 opacity-70' : 'text-yellow-500 group-hover:text-yellow-600'
-                  }`}
-                  strokeWidth={1.5} 
-                />
-                <p className="mt-4 text-gray-700 text-center font-medium">
-                  {isClosing ? 'Cerrando...' : 'Mi Portafolio'}
-                </p>
-                {!isClosing && (
-                  <p className="text-gray-400 text-xs mt-1">Click para cerrar</p>
-                )}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 flex-1">
-              {documents.map((doc, index) => {
-                const Icon = doc.icon;
-                const closeDelay = (documents.length - 1 - index) * 0.1;
-                
-                return (
-                  <button
-                    key={doc.id}
-                    onClick={() => !isClosing && handleDocClick(doc.id)}
-                    disabled={isClosing}
-                    className={`${doc.color} border-2 p-8 rounded-xl shadow-lg transition-all duration-300 transform ${
-                      !isClosing && 'hover:scale-105 hover:shadow-xl hover:-translate-y-1'
-                    }`}
-                    style={{
-                      animation: isClosing 
-                        ? `slideOut 0.5s ease-in ${closeDelay}s both`
-                        : `slideIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${0.1 + index * 0.15}s both`,
-                      pointerEvents: isClosing ? 'none' : 'auto'
-                    }}
-                  >
-                    <icon 
-                      size={56} 
-                      className="text-gray-700 mb-4 mx-auto transition-transform duration-300" 
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        {!isFolderOpen && !isOpening && !selectedDoc && (
+          <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="w-full flex justify-center">
+              {isMobile ? (
+                <button
+                  onClick={handleFolderClick}
+                  className="group transform transition-all duration-500 hover:scale-110 focus:outline-none flex flex-col items-center"
+                >
+                  <div className="relative flex justify-center items-center">
+                    <Folder 
+                      size={120}
+                      className="text-yellow-500 drop-shadow-lg group-hover:text-yellow-600 transition-colors" 
                       strokeWidth={1.5} 
                     />
-                    <p className="text-lg font-semibold text-gray-800">{doc.title}</p>
+                  </div>
+                  <div className="mt-6 text-center">
+                    <p className="text-gray-700 font-semibold text-xl tracking-wide">
+                      Gabriel Navarro
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Portafolio Web
+                    </p>
+                    <p className="text-gray-400 text-xs mt-2">
+                      Click para explorar
+                    </p>
+                  </div>
+                </button>
+              ) : (
+                <ParallaxContainer strength={30}>
+                  <button
+                    onClick={handleFolderClick}
+                    className="group transform transition-all duration-500 hover:scale-110 hover:rotate-3 focus:outline-none flex flex-col items-center"
+                  >
+                    <div className="relative flex justify-center items-center">
+                      <Folder 
+                        size={140}
+                        className="text-yellow-500 drop-shadow-lg group-hover:text-yellow-600 transition-colors" 
+                        strokeWidth={1.5} 
+                      />
+                      <div className="absolute inset-0 bg-yellow-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity rounded-full" />
+                    </div>
+                    <div className="mt-6 text-center">
+                      <p className="text-gray-700 font-semibold text-xl tracking-wide">
+                        Gabriel Navarro
+                      </p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        Portafolio Web
+                      </p>
+                      <p className="text-gray-400 text-xs mt-2">
+                        Click para explorar
+                      </p>
+                    </div>
                   </button>
-                );
-              })}
+                </ParallaxContainer>
+               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {selectedDoc && (
-        <div className="min-h-screen flex items-center justify-center p-8 animate-fadeIn">
-          <div className="w-full max-w-4xl">
-            <button
-              onClick={handleCloseDoc}
-              className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group"
-            >
-              <X size={24} className="group-hover:rotate-90 transition-transform duration-300" />
-              <span className="font-medium">Cerrar</span>
-            </button>
-            
-            <div 
-              className={`${documents.find(doc => doc.id === selectedDoc)?.bgExpanded} rounded-2xl shadow-2xl p-10 animate-scaleIn`}
-            >
-              {documents.find(doc => doc.id === selectedDoc)?.content}
+        {isOpening && (
+          <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="flex flex-col items-center animate-folderOpeningSequence">
+              <div className="relative flex justify-center items-center">
+                <Folder 
+                  size={isMobile ? 100 : 140}
+                  className="text-yellow-500 drop-shadow-lg absolute top-0 left-0 animate-iconFadeOut" 
+                  strokeWidth={1.5} 
+                />
+                <FolderOpen 
+                  size={isMobile ? 100 : 140}
+                  className="text-yellow-500 drop-shadow-lg animate-iconFadeIn" 
+                  strokeWidth={1.5} 
+                />
+              </div>
+              <div className="mt-6 text-center">
+                <p className="text-gray-700 font-semibold text-xl tracking-wide">
+                  Gabriel Navarro
+                </p>
+                <p className="text-gray-500 text-sm mt-1 animate-pulse">Abriendo portafolio...</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {isFolderReturning && (
+          <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="flex flex-col items-center animate-folderReturningSequence">
+              <div className="relative flex justify-center items-center">
+                <FolderOpen 
+                  size={isMobile ? 100 : 140}
+                  className="text-yellow-500 drop-shadow-lg absolute top-0 left-0 animate-iconFadeOut" 
+                  strokeWidth={1.5} 
+                />
+                <Folder 
+                  size={isMobile ? 100 : 140}
+                  className="text-yellow-500 drop-shadow-lg animate-iconFadeIn" 
+                  strokeWidth={1.5} 
+                />
+              </div>
+              <div className="mt-6 text-center">
+                <p className="text-gray-700 font-semibold text-xl tracking-wide opacity-50">
+                  Gabriel Navarro
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isFolderOpen && !selectedDoc && !isFolderReturning && (
+          <div className="min-h-screen flex items-center justify-center p-8">
+            <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 max-w-6xl w-full px-4">
+              <div className="flex-shrink-0">
+                <button
+                  onClick={handleCloseFolderView}
+                  className="group relative"
+                  disabled={isClosing}
+                >
+                  <FolderOpen 
+                    size={isMobile ? 80 : 120}
+                    className={`drop-shadow-lg transition-all duration-500 ${
+                      isClosing ? 'text-yellow-500 opacity-70' : 'text-yellow-500 group-hover:text-yellow-600'
+                    }`}
+                    strokeWidth={1.5} 
+                  />
+                  <p className="mt-4 text-gray-700 text-center font-medium">
+                    {isClosing ? 'Cerrando...' : 'Gabriel Navarro'}
+                  </p>
+                  {!isClosing && (
+                    <>
+                    <p className="text-gray-500 text-sm mt-1">Portafolio Web</p>
+                    <p className="text-gray-400 text-xs mt-1">Click para cerrar</p>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 flex-1 w-full">
+                {documents.map((doc, index) => {
+                  const Icon = doc.icon;
+                  const closeDelay = (documents.length - 1 - index) * 0.1;
+                  
+                  return (
+                    <button
+                      key={doc.id}
+                      onClick={() => !isClosing && handleDocClick(doc.id)}
+                      disabled={isClosing}
+                      className={`${doc.color} backdrop-blur-sm bg-opacity-80 border-2 border-white/30 p-4 sm:p-8 rounded-xl shadow-xl 
+                      transition-all duration-300 transform
+                      hover:scale-105 hover:shadow-2xl hover:-translate-y-2 hover:rotate-1
+                      active:scale-95
+                      ${
+                        !isClosing && 'cursor-pointer'
+                      }`}
+                      style={{
+                        animation: isClosing 
+                          ? `slideOut 0.5s ease-in ${closeDelay}s both`
+                          : `slideIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${0.1 + index * 0.15}s both`,
+                        pointerEvents: isClosing ? 'none' : 'auto'
+                      }}
+                    >
+                      <Icon 
+                        size={isMobile ? 80 : 120}
+                        className="text-gray-700 mb-4 mx-auto transition-transform duration-300" 
+                        strokeWidth={1.5} 
+                      />
+                      <p className="text-lg font-semibold text-gray-800">{doc.title}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedDoc && (
+          <div className="min-h-screen flex items-center justify-center p-8 animate-fadeIn">
+            <div className="w-full max-w-4xl">
+              <button
+                onClick={handleCloseDoc}
+                className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group"
+              >
+                <X size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+                <span className="font-medium">Cerrar</span>
+              </button>
+              
+              <div 
+                className={`${documents.find(doc => doc.id === selectedDoc)?.bgExpanded} rounded-2xl shadow-2xl p-10 animate-scaleIn`}
+              >
+                {documents.find(doc => doc.id === selectedDoc)?.content}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
